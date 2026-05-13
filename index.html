@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Procurement Buddy</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F5F2EC;
+    --surface: #FFFFFF;
+    --ink: #1A1A18;
+    --ink-muted: #6B6B62;
+    --accent: #2D5A3D;
+    --accent-light: #E8F0EA;
+    --border: #DDD9D0;
+    --score-high: #2D5A3D;
+    --score-mid: #7A6A2D;
+    --score-low: #8B4A2D;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    padding: 1.5rem 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+  }
+
+  .logo {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+
+  .logo h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    letter-spacing: -0.02em;
+  }
+
+  .logo span {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--ink-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* TABS */
+  nav {
+    display: flex;
+    gap: 0;
+  }
+
+  .tab-btn {
+    padding: 0.5rem 1.25rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: 1.5px solid var(--border);
+    background: none;
+    cursor: pointer;
+    color: var(--ink-muted);
+    transition: all 0.15s;
+  }
+
+  .tab-btn:first-child { border-radius: 4px 0 0 4px; }
+  .tab-btn:last-child { border-radius: 0 4px 4px 0; border-left: none; }
+
+  .tab-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+
+  /* CONTAINER */
+  .container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+  }
+
+  /* TAB PANELS */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* FORM STYLES */
+  .form-title {
+    margin-bottom: 2rem;
+  }
+
+  .form-title h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.75rem;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.25rem;
+  }
+
+  .form-title p {
+    font-size: 0.875rem;
+    color: var(--ink-muted);
+  }
+
+  .field {
+    margin-bottom: 1.5rem;
+  }
+
+  .field label {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .field label .req { color: var(--accent); margin-left: 2px; }
+
+  .field input,
+  .field select {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    border-radius: 4px;
+    outline: none;
+    color: var(--ink);
+    transition: border-color 0.2s;
+    appearance: none;
+  }
+
+  .field input:focus,
+  .field select:focus {
+    border-color: var(--accent);
+  }
+
+  .field input::placeholder { color: #BBBBAA; }
+
+  .select-wrap {
+    position: relative;
+  }
+
+  .select-wrap::after {
+    content: '▾';
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ink-muted);
+    pointer-events: none;
+    font-size: 0.8rem;
+  }
+
+  /* Toggle buttons for material type */
+  .toggle-group {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .toggle-btn {
+    padding: 0.5rem 1.1rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--ink-muted);
+    transition: all 0.15s;
+  }
+
+  .toggle-btn.selected {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+
+  .input-suffix {
+    position: relative;
+  }
+
+  .input-suffix input {
+    padding-right: 2.5rem;
+  }
+
+  .input-suffix .suffix {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--ink-muted);
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 1rem;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 0.5rem;
+  }
+
+  .submit-btn:hover { background: #224530; }
+  .submit-btn:disabled { background: var(--border); cursor: not-allowed; }
+
+  .form-msg {
+    margin-top: 1rem;
+    padding: 0.875rem 1rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    display: none;
+  }
+
+  .form-msg.success {
+    background: var(--accent-light);
+    color: var(--accent);
+    border: 1px solid #C0D9C6;
+    display: block;
+  }
+
+  .form-msg.error {
+    background: #FDF0EE;
+    color: #8B3A2D;
+    border: 1px solid #E8C4BC;
+    display: block;
+  }
+
+  /* RESULTS STYLES */
+  .search-section { margin-bottom: 2.5rem; }
+
+  .search-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .search-row { display: flex; gap: 0.75rem; }
+
+  .search-input {
+    flex: 1;
+    padding: 0.8rem 1rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    border-radius: 4px;
+    outline: none;
+    color: var(--ink);
+    transition: border-color 0.2s;
+  }
+
+  .search-input:focus { border-color: var(--accent); }
+  .search-input::placeholder { color: #BBBBAA; }
+
+  .search-btn {
+    padding: 0.8rem 1.5rem;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .search-btn:hover { background: #224530; }
+
+  .results-area { display: none; }
+  .results-area.visible { display: block; }
+
+  .company-heading { margin-bottom: 1.75rem; }
+
+  .company-heading .label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 0.2rem;
+  }
+
+  .company-heading h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.75rem;
+    letter-spacing: -0.03em;
+  }
+
+  .recommendation {
+    background: var(--accent-light);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .rec-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: 0.6rem;
+  }
+
+  .rec-text {
+    font-size: 0.875rem;
+    line-height: 1.7;
+    color: var(--ink);
+  }
+
+  .matches-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .match-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 0.625rem;
+    display: grid;
+    grid-template-columns: 2rem 1fr auto;
+    gap: 1rem;
+    align-items: center;
+    transition: box-shadow 0.2s;
+  }
+
+  .match-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+
+  .rank {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.75rem;
+    color: var(--border);
+    line-height: 1;
+    text-align: center;
+  }
+
+  .match-supplier { font-size: 0.95rem; font-weight: 500; margin-bottom: 0.2rem; }
+
+  .match-meta {
+    font-size: 0.775rem;
+    color: var(--ink-muted);
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .score-number {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.4rem;
+    font-weight: 500;
+    line-height: 1;
+    text-align: center;
+  }
+
+  .score-number.high { color: var(--score-high); }
+  .score-number.mid { color: var(--score-mid); }
+  .score-number.low { color: var(--score-low); }
+
+  .score-lbl {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    text-align: center;
+    margin-top: 0.15rem;
+  }
+
+  .show-more-row { text-align: center; margin-top: 0.75rem; }
+
+  .show-more-btn {
+    background: none;
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    padding: 0.5rem 1.25rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    color: var(--ink-muted);
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .show-more-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .hidden-cards { display: none; }
+
+  .state-msg {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--ink-muted);
+    font-size: 0.875rem;
+  }
+
+  .spinner {
+    width: 24px; height: 24px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto 0.75rem;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <h1>Procurement Buddy</h1>
+    <span>Material matching platform</span>
+  </div>
+  <nav>
+    <button class="tab-btn active" onclick="switchTab('form')">Submit Request</button>
+    <button class="tab-btn" onclick="switchTab('results')">View Matches</button>
+  </nav>
+</header>
+
+<div class="container">
+
+  <!-- FORM TAB -->
+  <div class="panel active" id="panel-form">
+    <div class="form-title">
+      <h2>Submit Material Request</h2>
+      <p>Fill in your requirements and we'll find the best matches for you.</p>
+    </div>
+
+    <div class="field">
+      <label>Company name <span class="req">*</span></label>
+      <input type="text" id="f-company" placeholder="Your company name" />
+    </div>
+
+    <div class="field">
+      <label>Company city <span class="req">*</span></label>
+      <input type="text" id="f-city" placeholder="Your city" />
+    </div>
+
+    <div class="field">
+      <label>Material type needed <span class="req">*</span></label>
+      <div class="toggle-group" id="material-type-group">
+        <button class="toggle-btn" onclick="selectToggle(this, 'material-type-group')">HDPE</button>
+        <button class="toggle-btn" onclick="selectToggle(this, 'material-type-group')">LDPE</button>
+        <button class="toggle-btn" onclick="selectToggle(this, 'material-type-group')">PP</button>
+        <button class="toggle-btn" onclick="selectToggle(this, 'material-type-group')">PET</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Color <span class="req">*</span></label>
+      <div class="select-wrap">
+        <select id="f-color">
+          <option value="">Select color</option>
+          <option>Any color</option>
+          <option>Black</option>
+          <option>Blue</option>
+          <option>Brown</option>
+          <option>Green</option>
+          <option>Mixed colors</option>
+          <option>Natural</option>
+          <option>Red</option>
+          <option>Transparent</option>
+          <option>White</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Max contamination degree <span class="req">*</span></label>
+      <div class="input-suffix">
+        <input type="number" id="f-contamination" placeholder="e.g. 5" min="0" max="100" step="0.1" />
+        <span class="suffix">%</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Volume needed <span class="req">*</span></label>
+      <div class="input-suffix">
+        <input type="number" id="f-volume" placeholder="e.g. 10" min="0" step="0.1" />
+        <span class="suffix">tons</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>When do you need the material? <span class="req">*</span></label>
+      <input type="date" id="f-date" />
+    </div>
+
+    <button class="submit-btn" id="submit-btn" onclick="submitForm()">Submit Request</button>
+    <div class="form-msg" id="form-msg"></div>
+  </div>
+
+  <!-- RESULTS TAB -->
+  <div class="panel" id="panel-results">
+    <div class="search-section">
+      <span class="search-label">Find your matches</span>
+      <div class="search-row">
+        <input type="text" class="search-input" id="companyInput" placeholder="Enter your company name…" />
+        <button class="search-btn" onclick="searchMatches()">Search</button>
+      </div>
+    </div>
+    <div class="results-area" id="results-area"></div>
+  </div>
+
+</div>
+
+<script>
+const SHEET_ID = '18bXTklgzemt95IyI1npV40RD0bX7KfoCbXSMZsrnp3o';
+const API_KEY = 'AIzaSyA8Ec5isrJ6SQIcRCU4J0Dqk8Wu1pXYYq0';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx9oef7OZP9U4bDUHFi_r6_WUKDQigWlxFamf3OzmpcbdWQSD61_swAk6KIsNx9icgr/exec';
+
+// TAB SWITCHING
+function switchTab(tab) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// TOGGLE BUTTONS
+function selectToggle(btn, groupId) {
+  document.querySelectorAll(`#${groupId} .toggle-btn`).forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function getSelectedToggle(groupId) {
+  const sel = document.querySelector(`#${groupId} .toggle-btn.selected`);
+  return sel ? sel.textContent.trim() : '';
+}
+
+// FORM SUBMISSION
+async function submitForm() {
+  const company = document.getElementById('f-company').value.trim();
+  const city = document.getElementById('f-city').value.trim();
+  const materialType = getSelectedToggle('material-type-group');
+  const color = document.getElementById('f-color').value;
+  const contamination = document.getElementById('f-contamination').value;
+  const volume = document.getElementById('f-volume').value;
+  const date = document.getElementById('f-date').value;
+
+  if (!company || !city || !materialType || !color || !contamination || !volume || !date) {
+    showMsg('Please fill in all required fields.', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting…';
+
+  const payload = {
+    Customer_Name: company,
+    Location_City: city,
+    Material_Type_Needed: materialType,
+    Color: color,
+    Max_Contamination_Degree: parseFloat(contamination) / 100,
+    Quantity_Tons: parseFloat(volume),
+    Date_Delivery: date,
+    Created_Date: new Date().toISOString().split('T')[0],
+    // Unused fields — send empty
+    Material_Form_Needed: '',
+    Material_Origin: '',
+    Quality_Grade_Requirements: '',
+    Maximum_Price_Per_Ton: '',
+    Location_Country: '',
+    Urgency: '',
+    Status: 'New',
+    Notes: ''
+  };
+
+  try {
+    let iframe = document.getElementById('hidden-iframe');
+    if (!iframe) {
+      iframe = document.createElement('iframe');
+      iframe.name = 'hidden-iframe';
+      iframe.id = 'hidden-iframe';
+      iframe.style.display = 'none';
+      document.body.appendChild(iframe);
+    }
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = SCRIPT_URL;
+    form.target = 'hidden-iframe';
+
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'data';
+    input.value = JSON.stringify(payload);
+    form.appendChild(input);
+
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+
+    // Clear form
+    document.getElementById('f-company').value = '';
+    document.getElementById('f-city').value = '';
+    document.querySelectorAll('#material-type-group .toggle-btn').forEach(b => b.classList.remove('selected'));
+    document.getElementById('f-color').value = '';
+    document.getElementById('f-contamination').value = '';
+    document.getElementById('f-volume').value = '';
+    document.getElementById('f-date').value = '';
+    btn.disabled = false;
+    btn.textContent = 'Submit Request';
+
+    showMsg('Request submitted! Switch to "View Matches" to see your results once processing is complete.', 'success');
+
+  } catch (err) {
+    showMsg('Submission failed. Please try again.', 'error');
+    btn.disabled = false;
+    btn.textContent = 'Submit Request';
+  }
+}
+
+function showMsg(text, type) {
+  const el = document.getElementById('form-msg');
+  el.textContent = text;
+  el.className = 'form-msg ' + type;
+}
+
+// RESULTS SEARCH
+async function fetchSheet(sheetName) {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(sheetName)}?key=${API_KEY}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Failed to fetch ${sheetName}`);
+  const data = await res.json();
+  const [headers, ...rows] = data.values;
+  return rows.map(row => {
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = row[i] || '');
+    return obj;
+  });
+}
+
+function cleanRecommendation(text) {
+  try {
+    const parsed = JSON.parse(text);
+    if (Array.isArray(parsed)) {
+      return parsed.map(b => b.text || '').join('').replace(/#{1,3}\s*/g, '').replace(/\*\*/g, '').trim();
+    }
+  } catch(e) {}
+  return text.replace(/#{1,3}\s*/g, '').replace(/\*\*/g, '').trim();
+}
+
+function scoreClass(score) {
+  const s = parseInt(score);
+  if (s >= 15) return 'high';
+  if (s >= 8) return 'mid';
+  return 'low';
+}
+
+async function searchMatches() {
+  const company = document.getElementById('companyInput').value.trim();
+  if (!company) return;
+
+  const area = document.getElementById('results-area');
+  area.className = 'results-area visible';
+  area.innerHTML = `<div class="state-msg"><div class="spinner"></div><p>Finding matches…</p></div>`;
+
+  try {
+    const [matches, recommendations] = await Promise.all([
+      fetchSheet('Material Matches'),
+      fetchSheet('Match Recommendation AI')
+    ]);
+
+    const companyMatches = matches
+      .filter(r => r.Customer_Name && r.Customer_Name.toLowerCase().includes(company.toLowerCase()))
+      .sort((a, b) => parseInt(b.Match_Score) - parseInt(a.Match_Score));
+
+    const rec = recommendations.find(r =>
+      r.Customer_Name && r.Customer_Name.toLowerCase().includes(company.toLowerCase())
+    );
+
+    if (companyMatches.length === 0) {
+      area.innerHTML = `<div class="state-msg"><p>No matches found for <strong>${company}</strong>.<br>Check the spelling or try again after processing.</p></div>`;
+      return;
+    }
+
+    const top3 = companyMatches.slice(0, 3);
+    const rest = companyMatches.slice(3);
+
+    let recHTML = '';
+    if (rec && rec.AI_Reasoning) {
+      const clean = cleanRecommendation(rec.AI_Reasoning);
+      const summary = clean.length > 500 ? clean.substring(0, 500) + '…' : clean;
+      recHTML = `
+        <div class="recommendation">
+          <div class="rec-tag">AI Procurement Recommendation</div>
+          <div class="rec-text">${summary}</div>
+        </div>`;
+    }
+
+    const cardHTML = (match, rank) => `
+      <div class="match-card">
+        <div class="rank">${rank}</div>
+        <div class="match-info">
+          <div class="match-supplier">${match.Supplier_Name}</div>
+          <div class="match-meta">
+            <span>${match.Material_Type_Needed}</span>
+            <span>Material match ID: ${match.Match_ID}</span>
+          </div>
+        </div>
+        <div>
+          <div class="score-number ${scoreClass(match.Match_Score)}">${match.Match_Score}</div>
+          <div class="score-lbl">score</div>
+        </div>
+      </div>`;
+
+    const moreHTML = rest.length > 0 ? `
+      <div class="hidden-cards" id="hiddenCards">
+        ${rest.map((m, i) => cardHTML(m, i + 4)).join('')}
+      </div>
+      <div class="show-more-row">
+        <button class="show-more-btn" onclick="document.getElementById('hiddenCards').style.display='block';this.parentElement.style.display='none'">
+          Show ${rest.length} more match${rest.length > 1 ? 'es' : ''}
+        </button>
+      </div>` : '';
+
+    area.innerHTML = `
+      <div class="company-heading">
+        <div class="label">Results for</div>
+        <h2>${companyMatches[0].Customer_Name}</h2>
+      </div>
+      ${recHTML}
+      <div class="matches-label">Top matches — sorted by score</div>
+      ${top3.map((m, i) => cardHTML(m, i + 1)).join('')}
+      ${moreHTML}`;
+
+  } catch (err) {
+    area.innerHTML = `<div class="state-msg"><p>Could not load data. Make sure the spreadsheet is publicly accessible.<br><small>${err.message}</small></p></div>`;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('companyInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') searchMatches();
+  });
+});
+</script>
+</body>
+</html>
